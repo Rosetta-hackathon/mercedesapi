@@ -36,11 +36,11 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
     return realsize;
 }
-char* client_id = "807eb547-b693-4b14-80bb-a583ee7bb6fc";
-char* Client_Secret = "6faa3390-29f8-4caa-88d3-92b86ab8ba29";
+char* client_id = "ODA3ZWI1NDctYjY5My00YjE0LTgwYmItYTU4M2VlN2JiNmZjOjZmYWEzMzkwLTI5ZjgtNGNhYS04OGQzLTkyYjg2YWI4YmEyOQ==";
 char* Redirect_URLs = "http://localhost";
-	static const char *postthis="grant_type=authorization_code&code=ae9b2850-1b7f-4311-aa14-0982f94715b0&redirect_uri=http://localhost";
-int main(void)
+	static const char *postthis="grant_type=authorization_code&code=d2dd833b-8c7e-4c01-b867-2080edc253c4&redirect_uri=http://localhost";
+int main(void)//https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/authorize?response_type=code&client_id=807eb547-b693-4b14-80bb-a583ee7bb6fc&redirect_uri=http://localhost&scope=mb:vehicle:status:general mb:user:pool:reader
+
 {
     CURLcode res;
     CURL *curl_handle;
@@ -60,11 +60,10 @@ int main(void)
     header = curl_slist_append(header,"content-type: application/x-www-form-urlencoded");
 
 
-    char clid[200];
-	strcat(clid,"authorization: Bearer ");
+    	char clid[200];
+	strcat(clid,"authorization: Basic ");
     	strcat(clid,client_id);
-	strcat(clid,":");
-	strcat(clid,Client_Secret);
+
 
     header = curl_slist_append(header,clid);
     res =curl_easy_setopt(curl_handle,CURLOPT_HTTPHEADER, header);
@@ -77,9 +76,6 @@ int main(void)
     /* we pass our 'chunk' struct to the callback function */
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
 
-    /* some servers don't like requests that are made without a user-agent
-       field, so we provide one */
-    curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
     curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postthis);//Post field
 
