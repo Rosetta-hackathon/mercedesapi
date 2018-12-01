@@ -44,7 +44,7 @@ int main(void)
     CURLcode res;
     CURL *curl_handle;
     struct curl_slist *header= NULL;
-    FILE* json =fopen("return.txt","w");
+    FILE* out =fopen("return.txt","w");
 
     struct MemoryStruct chunk;
 
@@ -59,8 +59,11 @@ int main(void)
     header = curl_slist_append(header,"content-type: application/x-www-form-urlencoded");
     header = curl_slist_append(header,"grant_type=authorization_code&code=b4b9918d-36b0-4172-9917-4f60917c4f71&redirect_uri=http://localhost");
 
-    char* clid="authorization: Bearer ";
-    clid=strcat(clid,client_id); clid=strcat(clid,":");clid=strcat(clid,Client_Secret);
+    char clid[200];
+	strcat(clid,"authorization: Bearer ");
+    	strcat(clid,client_id);
+	strcat(clid,":");
+	strcat(clid,Client_Secret);
 
     header = curl_slist_append(header,clid);
     res =curl_easy_setopt(curl_handle,CURLOPT_HTTPHEADER, header);
@@ -95,12 +98,12 @@ int main(void)
 
         printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
     }
-    fprintf(json,"%s ", chunk.memory);
+    printf("%s ", chunk.memory);
     /* cleanup curl stuff */
     curl_easy_cleanup(curl_handle);
 
     free(chunk.memory);
-    fclose(json);
+    fclose(out);
     /* we're done with libcurl, so clean it up */
     curl_global_cleanup();
 
