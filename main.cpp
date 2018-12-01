@@ -40,7 +40,8 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 }
 char* clientencoded = "ODA3ZWI1NDctYjY5My00YjE0LTgwYmItYTU4M2VlN2JiNmZjOjZmYWEzMzkwLTI5ZjgtNGNhYS04OGQzLTkyYjg2YWI4YmEyOQ==";
 char* Redirect_URLs = "http://localhost";
-	static const char *postthis="grant_type=authorization_code&code=d17c6cce-fe14-4088-a9af-e247b689ec38&redirect_uri=http://localhost";
+std::string VehicleId="394C1713ED75298D38";
+	static const char *postthis="grant_type=authorization_code&code=cd27a24c-058b-4f4a-85a7-2f99fe4424e5&redirect_uri=http://localhost";
 int main(void)//https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/authorize?response_type=code&client_id=807eb547-b693-4b14-80bb-a583ee7bb6fc&redirect_uri=http://localhost&scope=mb:vehicle:status:general mb:user:pool:reader
 
 {
@@ -48,13 +49,13 @@ int main(void)//https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/author
 curl -X POST "https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/token" \-H "authorization: Basic ODA3ZWI1NDctYjY5My00YjE0LTgwYmItYTU4M2VlN2JiNmZjOjZmYWEzMzkwLTI5ZjgtNGNhYS04OGQzLTkyYjg2YWI4YmEyOQ" \-H "content-type: application/x-www-form-urlencoded" \-d"grant_type=authorization_code&code=bd1ffdc2-95b7-4ab9-9066-addd4eb7eda6&redirect_uri=<insert_redirect_uri_here>"
 */
 //ACCESS TOKEN 
-    CURLcode res;
-    CURL *curl_handle;
-    struct curl_slist *header= NULL;
+    CURLcode res,req;
+    CURL *curl_handle,*get_handle;
+    struct curl_slist *header= NULL,*get_header=NULL;
     FILE* out =fopen("return.txt","w");
 Json::Reader reader;
     Json::Value obj;
-    struct MemoryStruct chunk;
+    struct MemoryStruct chunk,get_response;
 
     chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
     chunk.size = 0;    /* no data at this point */
@@ -68,7 +69,7 @@ Json::Reader reader;
 
 
     	//char clid[200];
-	std::string s;
+	std::string s,s2;
 s="authorization: Basic ";
 s.append(clientencoded);
     	
@@ -118,15 +119,58 @@ s.append(clientencoded);
 
 //ACCESS TOKEN END
 
+	get_response.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+
+  	get_response.size = 0;
+
+	
+
+	get_handle = curl_easy_init();
+
+ 	req=curl_easy_setopt(get_handle,CURLOPT_HTTPHEADER, get_header);
+  	// URL START
+	std::string url="https://api.mercedes-benz.com/experimental/connectedvehicle/v1/vehicles/";
+	url.append(VehicleId);
+	url.append("/stateofcharge");
+	//URL END
+	//TOKEN INIT + HEADERS
+	s2="authorization: Bearer "+obj["access_token"].asString();
+
+	get_header= curl_slist_append(get_header,"accept: application/json");
+
+	get_header= curl_slist_append(get_header,s2.c_str());
+
+  	curl_easy_setopt(get_handle, CURLOPT_URL,url.c_str());
+ 	//INIT END
+
+  	/* send all data to this function  */ 
+  	curl_easy_setopt(get_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+ 
+  	/* we pass our 'chunk' struct to the callback function */ 
+  	curl_easy_setopt(get_handle, CURLOPT_WRITEDATA, (void *)&get_response);
+ 
+  	/* some servers don't like requests that are made without a user-agent
+     	field, so we provide one */ 
+ 
+  	/* get it! */ 
+  	req = curl_easy_perform(get_handle);
+	if(req != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                curl_easy_strerror(res));
+    	}
+    	else {
+        /*
+         * Now, our chunk.memory points to a memory block that is chunk.size
+         * bytes big and contains the remote file.
+         *
+         * Do something nice with it!
+         */
+
+        printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
+    	}
 
 
-
-
-
-
-
-
-
+	std::cout<<get_response.memory<<std::endl;
 
 
 
