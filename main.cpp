@@ -19,6 +19,7 @@ static size_t
 WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     size_t realsize = size * nmemb;
+
     struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
     char *ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
@@ -35,10 +36,10 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
     return realsize;
 }
-char* client_id = "76eed7ad-4001-4928-8306-bd1fd4dd01de";
-char* Client_Secret = "b10bb5e2-8474-4ffb-8d0e-a115a1cfc5ac ";
+char* client_id = "807eb547-b693-4b14-80bb-a583ee7bb6fc";
+char* Client_Secret = "6faa3390-29f8-4caa-88d3-92b86ab8ba29";
 char* Redirect_URLs = "http://localhost";
-
+	static const char *postthis="grant_type=authorization_code&code=ae9b2850-1b7f-4311-aa14-0982f94715b0&redirect_uri=http://localhost";
 int main(void)
 {
     CURLcode res;
@@ -57,7 +58,7 @@ int main(void)
     curl_handle = curl_easy_init();
 
     header = curl_slist_append(header,"content-type: application/x-www-form-urlencoded");
-    header = curl_slist_append(header,"grant_type=authorization_code&code=b4b9918d-36b0-4172-9917-4f60917c4f71&redirect_uri=http://localhost");
+
 
     char clid[200];
 	strcat(clid,"authorization: Bearer ");
@@ -79,6 +80,10 @@ int main(void)
     /* some servers don't like requests that are made without a user-agent
        field, so we provide one */
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, postthis);//Post field
+
+    curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, (long)strlen(postthis));//Post size
 
     /* get it! */
     res = curl_easy_perform(curl_handle);
