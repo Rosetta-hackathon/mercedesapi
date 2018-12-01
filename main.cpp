@@ -1,29 +1,4 @@
-/***************************************************************************
- *                                  _   _ ____  _
- *  Project                     ___| | | |  _ \| |
- *                             / __| | | | |_) | |
- *                            | (__| |_| |  _ <| |___
- *                             \___|\___/|_| \_\_____|
- *
- * Copyright (C) 1998 - 2018, Daniel Stenberg, <daniel@haxx.se>, et al.
- *
- * This software is licensed as described in the file COPYING, which
- * you should have received as part of this distribution. The terms
- * are also available at https://curl.haxx.se/docs/copyright.html.
- *
- * You may opt to use, copy, modify, merge, publish, distribute and/or sell
- * copies of the Software, and permit persons to whom the Software is
- * furnished to do so, under the terms of the COPYING file.
- *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY OF ANY
- * KIND, either express or implied.
- *
- ***************************************************************************/
-/* <DESC>
- * Shows how the write callback function can be used to download data into a
- * chunk of memory instead of storing it in a file.
- * </DESC>
- */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +7,8 @@
 
 #include <curl/curl.h>
 #include <string>
+#define _GLIBCXX_USE_CXX11_ABI 1
 
-using namespace std;
 
 struct MemoryStruct {
     char *memory;
@@ -60,16 +35,16 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
     return realsize;
 }
-string client_id = "76eed7ad-4001-4928-8306-bd1fd4dd01de";
-string Client_Secret = "b10bb5e2-8474-4ffb-8d0e-a115a1cfc5ac ";
-string Redirect_URLs = "http://localhost";
+char* client_id = "76eed7ad-4001-4928-8306-bd1fd4dd01de";
+char* Client_Secret = "b10bb5e2-8474-4ffb-8d0e-a115a1cfc5ac ";
+char* Redirect_URLs = "http://localhost";
 
 int main(void)
 {
     CURLcode res;
     CURL *curl_handle;
     struct curl_slist *header= NULL;
-    FILE* json =fopen("return.json","w");
+    FILE* json =fopen("return.txt","w");
 
     struct MemoryStruct chunk;
 
@@ -84,13 +59,13 @@ int main(void)
     header = curl_slist_append(header,"content-type: application/x-www-form-urlencoded");
     header = curl_slist_append(header,"grant_type=authorization_code&code=b4b9918d-36b0-4172-9917-4f60917c4f71&redirect_uri=http://localhost");
 
-    string clid="authorization: Bearer ";
-    clid.append(client_id); clid.append(":");clid.append(Client_Secret);
+    char* clid="authorization: Bearer ";
+    clid=strcat(clid,client_id); clid=strcat(clid,":");clid=strcat(clid,Client_Secret);
 
-    header = curl_slist_append(header,clid.c_str());
+    header = curl_slist_append(header,clid);
     res =curl_easy_setopt(curl_handle,CURLOPT_HTTPHEADER, header);
     /* specify URL to get */
-    curl_easy_setopt(curl_handle, CURLOPT_URL, "https://api.mercedes-benz.com/experimental/connectedvehicle/v1/vehicles/E12614631BBA4D0688/doors/initial?apikey=206e5aa9-26be-4429-a849-22c6a7d881f2");
+    curl_easy_setopt(curl_handle, CURLOPT_URL, "https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/token");
 
     /* send all data to this function  */
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
