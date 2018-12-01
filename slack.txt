@@ -1,0 +1,45 @@
+Connected API kullanimi sirasinda authentication konusu biraz karmasik, katilimcilarin sorulari olabilir, 
+
+Bu nedenle asagidaki notu paylasmak istedim:
+
+-->> Connected Car API (demo harici) sadece gecici olarak uretilen AccessToken ile cagrilabilir. 
+
+-->> AccessToken almak icin 3 basamakli bir islem gerekiyor:
+
+    a) Kullanici adi ve sifresi ile developer.mercedes e uye olmak
+
+    
+
+    b) Size verilecek "Client ID" ile asagidaki adrese Get request atip redirect edilen sayfadan "code" almak:
+
+        örnek request: (bu islem browser uzerinden de yapilabilir.)
+
+        https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/authorize?response_type=code&client_id=<clientIdHere>&redirect_uri=http://localhost&scope=mb:vehicle:status:general mb:user:pool:reader
+
+        
+
+    c) önceki basamakta alinan "code" parametresini kullanarak asagidaki örnekteki gibi AccessToken almak.
+
+    
+
+     ***Burada onemli olan nokta client_id ve client_secret in aralarinda ":" isareti ile birlikte base64 e gore encode edilmesi:
+
+        
+
+        curl -X POST "https://api.secure.mercedes-benz.com/oidc10/auth/oauth/v2/token" \
+
+        -H "authorization: Basic <insert_your_base64_encoded_client_id_and_client_secret_here>" \
+
+        -H "content-type: application/x-www-form-urlencoded" \
+
+        -d "grant_type=authorization_code&code=<insert_the_code_obtained_in_step_3_here>&redirect_uri=<insert_redirect_uri_here>"
+
+-->> Bu Access token 1 saat icerisinde expire oluyor, yenilemek icin asagidaki linkteki gibi refresh request atmak gerekiyor.
+
+     https://developer.mercedes-benz.com/content-page/oauth-documentation
+
+Sonrasinda simulator ile tum connected car API lari kullanabilirsiniz.
+
+Kolayliklar
+
+Emrah
