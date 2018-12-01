@@ -28,8 +28,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <curl/curl.h>
+#include <string>
+
+using namespace std;
+
 struct MemoryStruct {
     char *memory;
     size_t size;
@@ -55,11 +60,15 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
     return realsize;
 }
+string client_id = "76eed7ad-4001-4928-8306-bd1fd4dd01de";
+string Client_Secret = "b10bb5e2-8474-4ffb-8d0e-a115a1cfc5ac ";
+string Redirect_URLs = "http://localhost";
 
 int main(void)
 {
+    CURLcode res;
     CURL *curl_handle;
-    struct curl_slist *chunk= NULL
+    struct curl_slist *header= NULL;
     FILE* json =fopen("return.json","w");
 
     struct MemoryStruct chunk;
@@ -72,8 +81,14 @@ int main(void)
     /* init the curl session */
     curl_handle = curl_easy_init();
 
-    chunk = curl_slist_append(chunk,"authorization: Bearer <insert_the_access_token_here>")
+    header = curl_slist_append(header,"content-type: application/x-www-form-urlencoded");
+    header = curl_slist_append(header,"grant_type=authorization_code&code=b4b9918d-36b0-4172-9917-4f60917c4f71&redirect_uri=http://localhost");
 
+    string clid="authorization: Bearer ";
+    clid.append(client_id); clid.append(":");clid.append(Client_Secret);
+
+    header = curl_slist_append(header,clid.c_str());
+    res =curl_easy_setopt(curl_handle,CURLOPT_HTTPHEADER, header);
     /* specify URL to get */
     curl_easy_setopt(curl_handle, CURLOPT_URL, "https://api.mercedes-benz.com/experimental/connectedvehicle/v1/vehicles/E12614631BBA4D0688/doors/initial?apikey=206e5aa9-26be-4429-a849-22c6a7d881f2");
 
